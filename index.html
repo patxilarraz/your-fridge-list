@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06070b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Fridge List</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#06070b;--surface:#0e1119;--surface-2:#151a26;--line:#222a3b;
+  --fg:#e9edf6;--muted:#8792a9;--blue:#3a78ff;--blue-soft:#9dbbff;
+  --blue-wash:rgba(58,120,255,.14);--danger:#ff6f6f;--ok:#5fd4a0;
+  --f-display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg);margin:0}
+body{font-family:var(--f-body);font-size:16px;line-height:1.45;padding-inline:16px;padding-block:env(safe-area-inset-top,0px) calc(40px + env(safe-area-inset-bottom,0px));-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.wrap{max-width:560px;margin:0 auto}
+header{padding-block:22px 6px}
+h1{font-family:var(--f-display);font-weight:800;font-size:2.1rem;line-height:1;letter-spacing:-.02em;margin:0}
+h1 span{color:var(--blue)}
+.sub{color:var(--muted);font-size:.85rem;margin-top:6px}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tab{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:600 .95rem var(--f-body);padding:11px 10px;border-radius:12px;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px}
+.tab[aria-selected="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.tab .n{font-family:var(--f-mono);font-size:.75rem;opacity:.85}
+.banner{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:12px;padding:12px 14px;font-size:.9rem;margin-block:4px 12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{min-width:0}
+input,select{font:500 16px var(--f-body);color:var(--fg);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%;-webkit-appearance:none;appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:26px}
+input::placeholder{color:#5d6780}
+input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.grow{flex:1 1 160px}.qty{flex:0 0 84px}.unit{flex:0 0 84px}.cat{flex:1 1 150px}
+label.lbl{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font:600 .95rem var(--f-body);padding:11px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--danger)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.block{width:100%}
+.groups{display:grid;gap:18px;margin-top:18px}
+.ghead{display:flex;justify-content:space-between;align-items:baseline;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-soft);font-weight:600;padding-inline:4px;margin-bottom:6px}
+.ghead .c{font-family:var(--f-mono);color:var(--muted)}
+ul.items{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}
+ul.items li{display:flex;align-items:center;gap:12px;padding:12px;border-top:1px solid var(--line)}
+ul.items li:first-child{border-top:0}
+.check{flex:0 0 28px;height:28px;border-radius:50%;border:2px solid var(--blue);background:transparent;cursor:pointer;display:grid;place-items:center;padding:0}
+.check svg{width:14px;height:14px;opacity:0}
+li.done .check{background:var(--blue)}
+li.done .check svg{opacity:1}
+.iname{flex:1;min-width:0;font-weight:500;overflow-wrap:anywhere}
+li.done .iname{color:var(--muted);text-decoration:line-through}
+.pill{font-family:var(--f-mono);font-size:.8rem;color:var(--blue-soft);background:var(--blue-wash);padding:3px 8px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+li.done .pill{color:var(--muted);background:transparent}
+.x{flex:0 0 32px;height:32px;border:0;background:transparent;color:var(--muted);border-radius:8px;cursor:pointer;font-size:1.2rem;line-height:1}
+.x:hover{color:var(--danger);background:var(--surface-2)}
+.actions{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:18px}
+.empty{border:1px dashed var(--line);border-radius:14px;padding:26px 18px;text-align:center;color:var(--muted);margin-top:18px}
+.empty b{display:block;color:var(--fg);font-family:var(--f-display);font-size:1.15rem;margin-bottom:4px}
+.sheet{margin-top:14px}
+pre.preview{font-family:var(--f-body);white-space:pre-wrap;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px;margin:0;max-height:280px;overflow:auto;font-size:.92rem;-webkit-user-select:text;user-select:text}
+.hint{font-size:.82rem;color:var(--muted)}
+h2{font-family:var(--f-display);font-weight:800;font-size:1.25rem;margin:0}
+.sec{display:grid;gap:14px}
+.ingrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ingrow .grow{flex:1 1 130px}.ingrow .qty{flex:0 0 72px}.ingrow .unit{flex:0 0 76px}
+.cards{display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 14px 10px}
+.card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card h3{font-family:var(--f-display);font-weight:800;font-size:1.15rem;margin:0;overflow-wrap:anywhere;min-width:0}
+.card ul{list-style:none;margin:10px 0 0;padding:0}
+.card li{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:.95rem}
+.card li .nm{flex:1;min-width:0;overflow-wrap:anywhere}
+.tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600;color:var(--muted)}
+.tag.on{color:var(--ok)}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:.9rem;max-width:calc(100% - 32px);z-index:20;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+@media (prefers-reduced-motion:no-preference){.toast{animation:pop .2s ease-out}@keyframes pop{from{opacity:0;transform:translate(-50%,8px)}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Fridge <span>List</span></h1>
+    <div class="sub" id="sub">Loading the shared list…</div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-list" aria-selected="true">Shopping <span class="n" id="n-list"></span></button>
+    <button class="tab" role="tab" id="tab-prep" aria-selected="false">Meal prep <span class="n" id="n-prep"></span></button>
+  </div>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <section id="view-list">
+    <form class="panel" id="add-form" autocomplete="off">
+      <input class="grow" id="add-name" placeholder="What's run out? e.g. Chicken" maxlength="60" aria-label="Item">
+      <div class="row">
+        <input class="qty" id="add-qty" type="number" inputmode="decimal" min="0" step="any" placeholder="Qty" aria-label="Quantity">
+        <select class="unit" id="add-unit" aria-label="Unit"></select>
+        <select class="cat" id="add-cat" aria-label="Category"></select>
+      </div>
+      <button class="btn primary block" type="submit">Add to list</button>
+    </form>
+
+    <div id="list"></div>
+
+    <div class="actions" id="list-actions" hidden>
+      <button class="btn ghost" id="clear-btn">Clear ticked</button>
+      <button class="btn primary" id="send-btn">Send list</button>
+    </div>
+
+    <div class="panel sheet" id="sheet" hidden>
+      <h2>Send list</h2>
+      <div>
+        <label class="lbl" for="send-to">Send to</label>
+        <input id="send-to" type="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <pre class="preview" id="preview"></pre>
+      <div class="row">
+        <a class="btn primary grow" id="mail-link" href="#">Open in Mail</a>
+        <button class="btn grow" id="copy-btn">Copy list</button>
+      </div>
+      <div class="hint">Only items you haven't ticked are included. This phone remembers the address.</div>
+    </div>
+  </section>
+
+  <section id="view-prep" class="sec" hidden>
+    <form class="panel" id="rec-form" autocomplete="off">
+      <h2>New recipe</h2>
+      <input id="rec-title" placeholder="Recipe name, e.g. Chicken &amp; rice bowls" maxlength="80" aria-label="Recipe name">
+      <label class="lbl">Ingredients</label>
+      <div id="ing-rows" style="display:grid;gap:8px"></div>
+      <button class="btn ghost" type="button" id="add-ing">+ Add ingredient</button>
+      <button class="btn primary block" type="submit">Save recipe</button>
+      <div class="hint">Anything not already on the shopping list gets added to it.</div>
+    </form>
+    <div class="cards" id="cards"></div>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL="https://gaigdtvpqznblukmedtj.supabase.co";
+const SUPABASE_KEY="sb_publishable_HBESzSAkRytFA0X7tp__lA_mAN3TYrs";
+
+const CATS=["Fruit & veg","Meat & fish","Dairy & eggs","Bakery","Cupboard","Frozen","Drinks","Household","Other"];
+const UNITS=["pcs","g","kg","ml","L"];
+const GUESS=[
+  ["Meat & fish",/chicken|beef|pork|mince|lamb|turkey|bacon|ham|sausage|chorizo|fish|salmon|tuna|cod|prawn|shrimp|steak/i],
+  ["Dairy & eggs",/milk|cheese|yog|butter|cream|egg/i],
+  ["Fruit & veg",/apple|banana|orange|lemon|lime|onion|garlic|tomato|potato|pepper|carrot|lettuce|spinach|broccoli|avocado|cucumber|mushroom|courgette|fruit|berr|herb|parsley|coriander/i],
+  ["Bakery",/bread|bagel|wrap|tortilla|croissant|bun|roll/i],
+  ["Frozen",/frozen|ice cream|peas/i],
+  ["Drinks",/juice|water|coffee|tea|beer|wine|soda|coke/i],
+  ["Household",/soap|paper|bin bag|detergent|sponge|foil|cling|tissue|shampoo|toothpaste/i],
+  ["Cupboard",/rice|pasta|oil|flour|sugar|salt|spice|sauce|tin|bean|lentil|oat|cereal|stock|honey|vinegar|noodle/i]
+];
+const guessCat=n=>{for(const[c,re] of GUESS) if(re.test(n)) return c; return "Other";};
+
+const $=s=>document.querySelector(s);
+function h(tag,attrs,...kids){const el=document.createElement(tag);for(const[k,v] of Object.entries(attrs||{})){if(k==="class")el.className=v;else if(k.startsWith("on"))el.addEventListener(k.slice(2),v);else if(v===true)el.setAttribute(k,"");else if(v!==false&&v!=null)el.setAttribute(k,v);}for(const c of kids.flat()){if(c==null||c===false)continue;el.append(c.nodeType?c:document.createTextNode(String(c)));}return el;}
+function tick(){const s=document.createElementNS("http://www.w3.org/2000/svg","svg");s.setAttribute("viewBox","0 0 16 16");s.setAttribute("fill","none");s.setAttribute("stroke","#fff");s.setAttribute("stroke-width","2.5");s.setAttribute("stroke-linecap","round");s.setAttribute("stroke-linejoin","round");const p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d","M3 8.5l3.2 3L13 4.5");s.append(p);return s;}
+const fmtQty=(q,u)=>(q==null||q==="")?"":(u==="pcs"||!u?String(q):`${q} ${u}`);
+const norm=s=>String(s||"").trim().toLowerCase();
+let tt;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600);}
+function banner(m){const b=$("#banner");b.textContent=m||"";b.hidden=!m;}
+const store={get(k){try{return localStorage.getItem(k)||"";}catch(_){return"";}},set(k,v){try{localStorage.setItem(k,v);}catch(_){}}};
+
+let sb=null, ready=false, items=[], recipes=[], ingDraft=[{name:"",qty:"",unit:"g"}], armedDelete=null;
+
+/* selects */
+for(const u of UNITS)$("#add-unit").append(h("option",{value:u},u));
+for(const c of CATS)$("#add-cat").append(h("option",{value:c},c));
+$("#add-cat").value="Other";
+let catTouched=false;
+$("#add-cat").addEventListener("change",()=>catTouched=true);
+$("#add-name").addEventListener("input",e=>{if(!catTouched)$("#add-cat").value=guessCat(e.target.value);});
+
+/* tabs */
+function setView(v){$("#tab-list").setAttribute("aria-selected",v==="list");$("#tab-prep").setAttribute("aria-selected",v==="prep");$("#view-list").hidden=v!=="list";$("#view-prep").hidden=v!=="prep";}
+$("#tab-list").onclick=()=>setView("list");
+$("#tab-prep").onclick=()=>setView("prep");
+if(location.hash==="#prep")setView("prep");
+
+/* data */
+async function load(){
+  if(!sb)return;
+  const [a,b]=await Promise.all([
+    sb.from("items").select("*").order("created_at"),
+    sb.from("recipes").select("*").order("created_at",{ascending:false})
+  ]);
+  if(a.error||b.error){banner("Can't reach the list right now. Check your connection, then pull down to refresh.");ready=true;renderAll();return;}
+  banner("");items=a.data;recipes=b.data;ready=true;renderAll();
+}
+async function w(promise){
+  const {error}=await promise;
+  if(error){toast("Couldn't save that. Check your connection and try again.");return false;}
+  load();return true;
+}
+
+/* shopping list */
+$("#add-form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const name=$("#add-name").value.trim(); if(!name){$("#add-name").focus();return;}
+  const q=$("#add-qty").value;
+  const ok=await w(sb.from("items").insert({name,qty:q===""?null:Number(q),unit:$("#add-unit").value,cat:$("#add-cat").value}));
+  if(ok){$("#add-name").value="";$("#add-qty").value="";catTouched=false;$("#add-cat").value="Other";toast(`Added ${name}`);}
+});
+
+function renderList(){
+  const box=$("#list");box.replaceChildren();
+  const open=items.filter(i=>!i.done).length;
+  $("#n-list").textContent=items.length?open:"";
+  $("#sub").textContent=!ready?"Loading the shared list…":items.length?`${open} to buy · ${items.length-open} ticked`:"Shared shopping list";
+  $("#list-actions").hidden=!items.length;
+  $("#clear-btn").textContent=`Clear ticked (${items.length-open})`;
+  $("#clear-btn").disabled=items.length===open;
+  if(!items.length){box.append(h("div",{class:"empty"},h("b",{},ready?"Nothing on the list":"Loading…"),ready?"When something runs out, add it above. Everyone who taps the fridge tag sees it.":""));}
+  else{
+    const groups=h("div",{class:"groups"});
+    for(const c of CATS){
+      const rows=items.filter(i=>(CATS.includes(i.cat)?i.cat:"Other")===c).sort((a,b)=>(a.done-b.done)||(a.created_at<b.created_at?-1:1));
+      if(!rows.length)continue;
+      groups.append(h("div",{},
+        h("div",{class:"ghead"},h("span",{},c),h("span",{class:"c"},`${rows.filter(r=>!r.done).length}/${rows.length}`)),
+        h("ul",{class:"items"},rows.map(it=>h("li",{class:it.done?"done":""},
+          h("button",{class:"check","aria-label":(it.done?"Untick ":"Tick ")+it.name,onclick:()=>{it.done=!it.done;renderAll();w(sb.from("items").update({done:it.done}).eq("id",it.id));}},tick()),
+          h("span",{class:"iname"},it.name),
+          fmtQty(it.qty,it.unit)?h("span",{class:"pill"},fmtQty(it.qty,it.unit)):null,
+          h("button",{class:"x","aria-label":"Remove "+it.name,onclick:()=>{items=items.filter(x=>x.id!==it.id);renderAll();w(sb.from("items").delete().eq("id",it.id));}},"×")
+        )))
+      ));
+    }
+    box.append(groups);
+  }
+  if(!$("#sheet").hidden)renderSheet();
+}
+
+$("#clear-btn").onclick=async()=>{
+  const ids=items.filter(i=>i.done).map(i=>i.id); if(!ids.length)return;
+  if(await w(sb.from("items").delete().in("id",ids)))toast(`Cleared ${ids.length} item${ids.length>1?"s":""}`);
+};
+
+/* send */
+function listText(){
+  const open=items.filter(i=>!i.done);
+  const d=new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+  const subject=`Shopping list – ${d}`;
+  if(!open.length)return{subject,body:"Nothing to buy right now."};
+  let body="";
+  for(const c of CATS){
+    const rows=open.filter(i=>(CATS.includes(i.cat)?i.cat:"Other")===c); if(!rows.length)continue;
+    body+=(body?"\n":"")+c+"\n";
+    for(const r of rows){const q=fmtQty(r.qty,r.unit);body+=`• ${r.name}${q?" – "+q:""}\n`;}
+  }
+  return{subject,body:body.trimEnd()};
+}
+function renderSheet(){
+  const{subject,body}=listText();
+  $("#preview").textContent=body;
+  $("#mail-link").href=`mailto:${$("#send-to").value.trim()}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+$("#send-to").value=store.get("sendTo");
+$("#send-to").addEventListener("input",e=>{store.set("sendTo",e.target.value.trim());renderSheet();});
+$("#send-btn").onclick=()=>{const s=$("#sheet");s.hidden=!s.hidden;if(!s.hidden){renderSheet();s.scrollIntoView({behavior:"smooth",block:"start"});}};
+$("#copy-btn").onclick=()=>{
+  const{subject,body}=listText();
+  navigator.clipboard.writeText(subject+"\n\n"+body).then(()=>toast("List copied"),()=>{const r=document.createRange();r.selectNodeContents($("#preview"));const s=getSelection();s.removeAllRanges();s.addRange(r);toast("Selected. Copy it from here.");});
+};
+
+/* meal prep */
+function renderIngRows(){
+  const box=$("#ing-rows");box.replaceChildren();
+  ingDraft.forEach((g,i)=>{
+    const unit=h("select",{class:"unit","aria-label":"Unit"},UNITS.map(u=>h("option",{value:u},u)));
+    unit.value=g.unit;unit.onchange=e=>g.unit=e.target.value;
+    box.append(h("div",{class:"ingrow"},
+      h("input",{class:"grow",id:"ing-name-"+i,placeholder:"Ingredient",value:g.name,maxlength:"60","aria-label":"Ingredient",oninput:e=>g.name=e.target.value}),
+      h("input",{class:"qty",type:"number",inputmode:"decimal",min:"0",step:"any",placeholder:"Qty",value:g.qty,"aria-label":"Quantity",oninput:e=>g.qty=e.target.value}),
+      unit,
+      h("button",{class:"x",type:"button","aria-label":"Remove ingredient",onclick:()=>{ingDraft.splice(i,1);if(!ingDraft.length)ingDraft.push({name:"",qty:"",unit:"g"});renderIngRows();}},"×")
+    ));
+  });
+}
+$("#add-ing").onclick=()=>{ingDraft.push({name:"",qty:"",unit:"g"});renderIngRows();$("#ing-name-"+(ingDraft.length-1)).focus();};
+$("#rec-form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const title=$("#rec-title").value.trim();
+  const ings=ingDraft.filter(g=>g.name.trim()).map(g=>({name:g.name.trim(),qty:g.qty===""?null:Number(g.qty),unit:g.unit}));
+  if(!title){toast("Give the recipe a name.");$("#rec-title").focus();return;}
+  if(!ings.length){toast("Add at least one ingredient.");return;}
+  const{error}=await sb.from("recipes").insert({title,ings});
+  if(error){toast("Couldn't save the recipe. Try again.");return;}
+  const onList=new Set(items.filter(i=>!i.done).map(i=>norm(i.name)));
+  const toAdd=[];
+  for(const g of ings){if(onList.has(norm(g.name)))continue;onList.add(norm(g.name));toAdd.push({name:g.name,qty:g.qty,unit:g.unit,cat:guessCat(g.name)});}
+  if(toAdd.length)await sb.from("items").insert(toAdd);
+  $("#rec-title").value="";ingDraft=[{name:"",qty:"",unit:"g"}];renderIngRows();
+  toast(toAdd.length?`Saved. ${toAdd.length} item${toAdd.length>1?"s":""} added to the list`:"Recipe saved");
+  load();
+});
+
+function renderCards(){
+  const box=$("#cards");box.replaceChildren();
+  $("#n-prep").textContent=recipes.length||"";
+  if(!recipes.length){box.append(h("div",{class:"empty"},h("b",{},ready?"No recipes yet":"Loading…"),ready?"Save a recipe above. Its ingredients go straight onto the shopping list.":""));return;}
+  const byName=new Map(items.map(i=>[norm(i.name),i]));
+  for(const r of recipes){
+    const armed=armedDelete===r.id;
+    box.append(h("div",{class:"card"},
+      h("div",{class:"top"},h("h3",{},r.title),
+        h("button",{class:"btn ghost danger",style:"padding:6px 10px;font-size:.85rem",onclick:()=>{
+          if(!armed){armedDelete=r.id;renderCards();setTimeout(()=>{if(armedDelete===r.id){armedDelete=null;renderCards();}},3000);return;}
+          armedDelete=null;w(sb.from("recipes").delete().eq("id",r.id));
+        }},armed?"Tap to confirm":"Delete")),
+      h("ul",{},(r.ings||[]).map(g=>{
+        const it=byName.get(norm(g.name));
+        const tag=it?(it.done?h("span",{class:"tag on"},"Ticked"):h("span",{class:"tag"},"On list")):null;
+        return h("li",{},h("span",{class:"nm"},g.name),fmtQty(g.qty,g.unit)?h("span",{class:"pill"},fmtQty(g.qty,g.unit)):null,tag);
+      }))
+    ));
+  }
+}
+function renderAll(){renderList();renderCards();}
+
+/* boot */
+renderAll();renderIngRows();
+if(!window.supabase){ready=true;banner("Couldn't load the app. Check your connection and reload.");renderAll();}
+else{
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  load();
+  sb.channel("fridge").on("postgres_changes",{event:"*",schema:"public",table:"items"},load)
+    .on("postgres_changes",{event:"*",schema:"public",table:"recipes"},load).subscribe();
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)load();});
+}
+</script>
+</body>
+</html>
